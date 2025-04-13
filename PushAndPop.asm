@@ -14,7 +14,7 @@ main PROC
     MOV AX, @data ; Initialization of Data Segment
     MOV DS, AX
     
-    ; Initializa some arbitrary values
+    ; Initialize some arbitrary values
     MOV AX, 1
     MOV BX, 1024
     MOV CX, 100
@@ -32,7 +32,6 @@ main PROC
     POP AX
     POP AX
     
-
     ; Exchange of values using the stack (no auxiliar variable)
     MOV AX, 10 ; AX = 10
     MOV BX, 20 ; BX = 20      

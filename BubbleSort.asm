@@ -29,7 +29,7 @@ main PROC
     CMP AL, array[DI]   ; Compare with the array value in position DI
     JA  MORE            ; Jump to SWAP if its higher
     JB  SWAP            ; Jump to LESS if its lower   
-    ; Ascending orden:
+    ; Ascending order:
     ; JA SWAP 
     ; JB LESS 
     
@@ -46,7 +46,7 @@ main PROC
     
     TERMINATE:     
     ; Correct program termination
-    MOV AH, 4Ch ;4Ch function: Terminate program in DOS
+    MOV AH, 4Ch ; 4Ch function: Terminate program in DOS
     INT 21h     ; Calling to interruption DOS
     
 main ENDP

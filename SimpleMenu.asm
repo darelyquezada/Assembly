@@ -7,8 +7,9 @@
 
 .model small
 
-.data
-; 
+.data 
+
+; Cadena para salto de linea (CR y LF) y para finalizar con '$'
 jump    DB 13, 10, '$'
 
 ; Menu and options (CR and LF are used for line jumps)    
@@ -26,17 +27,17 @@ menu    DB 13, 10, '------ MENU ------', 13, 10
 ; Structure:
 ;   - Byte 0: Maximum capacity (20 in this case)
 ;   - Byte 1: Total read characters
-;   - From Byte 2 an on: Text entered
-buffer  DB 20
-        DB ?
-        DB 20 dup('$')  
+;   - From Byte 2 and on: Input text (text introduced by the user) 
+buffer  DB 20           ; Maximum capacity allowed 
+        DB ?            ; Total successfully read characters 
+        DB 20 dup('$')  ; Space for the chain
 
-; Aditional messages
-name_msg DB 13, 10, 'Write your name: $'
-hi_msg   DB 13, 10, 'Hello!$'
-saludo_msg DB 13, 10, 'Hello, $'
-bye_msg  DB 13, 10, 'See you later!$'
-error_msg DB 13, 10, 'Invalid option.$'  
+; Additional messages
+name_msg    DB 13, 10, 'Write your name: $'
+hello_msg   DB 13, 10, 'Hello!$'
+greet_msg   DB 13, 10, 'Hello, $'        ; Se le concatenara el nombre ingresado
+bye_msg     DB 13, 10, 'See you later!$'
+error_msg   DB 13, 10, 'Invalid option.$'  
 another_msg DB 13, 10, "La pelona de pitbull $"
 
 .code  
@@ -65,12 +66,12 @@ MAIN PROC
     
     MOV option, AL  ; Stores the read option in the variable "option"
     
-    ; -------------------------------------------
-    ; Add a line jump to separate the uotput in one single instruction
+    ; Add a line jump to separate the output in one single instruction
     MOV AH, 09h
     LEA DX, jump
     INT 21h
     
+    ;Evaluate chosen option
     CMP option, '1'
     JE option_1  
     
@@ -86,31 +87,36 @@ MAIN PROC
         LEA DX, hi_msg
         INT 21h 
         
-        ; Print message
+        ; Print another message
         MOV AH, 09H
         LEA DX, another_msg
         INT 21h
         
         JMP menu_start
     
-    ; Option 2: Ask for name, then say hi
-    option_2:
+    ; Option 2: Ask for user's name and greet
+    option_2: 
+        ; Show message asking for a name
         MOV AH, 09h
         LEA DX, name_msg
         INT 21h
         
-        
-        MOV AH, 0AH
+        ; Read input chain with 0AH function    
+        ; 0Ah function uses the defined buffer before to store:
+        ;   - buffer[0]: Maximum capacity
+        ;   - buffer[1]: Total read characters
+        ;   - From buffer+2: Input chain
+        MOV AH, 0AH         
         LEA DX, buffer
         INT 21h
         
-        ; Print hi message
+        ; Print greet message
         MOV AH, 09H
         LEA DX, saludo_msg
         INT 21h   
         
-        ; Print name
-        LEA DX, buffer + 2
+        ; Print input name
+        LEA DX, buffer + 2      ; buffer+2 omits the first two bytes 
         MOV AH, 09h
         INT 21h
         
@@ -122,7 +128,7 @@ MAIN PROC
       LEA DX, bye_msg
       INT 21h  
     
-    
+      ; Exit program and return to DOS 
       MOV AH, 4Ch
       INT 21h
     

@@ -44,29 +44,36 @@ main PROC
         MOV AL, BL  ; Set the verification number in AL
         XOR AH, AH  ; Clean AH for the division (AX = BL)
         DIV DL      ; Divide BL (AL) by DL; AL = quotient, AH = residue
-        CMP AH, 0   ; If the residue is 0, BL is dividable by DL, then it it not a prime number
-        JE NOTPRIME ;  
-        INC DL
-        CMP DL, BL
-        JL PRIMELOOP
         
-    STOREPRIME:
-        MOV AL, BL
-        MOV Primes[DI], AL
-        INC DI
+        CMP AH, 0   
+        JE NOTPRIME     ; If the residue is 0, BL can be divided by DL, then it is not a prime number 
+        INC DL          ; Increment divisor
+        CMP DL, BL      ; Continue while DL < BL
+        JL PRIMELOOP    
+    
+    ; If the loop is completed without finding a divisor, the number is prime
+    STOREPRIME:  
+        MOV AL, BL        ; AL = prime number
+        MOV Primes[DI], AL; Store prime number in Primes array
+        INC DI            ; Increment index for next prime number
         JMP DONECHECK
         
-    NOTPRIME:
-        NOP
+    NOTPRIME:  
+        ; If the number is not prime, the number isn't stored and then the next number is evaluated 
+        NOP           ; This instruction does nothing    
     
     DONECHECK:
-        INC SI
-        LOOP NEXTNUMBER
+        INC SI              ; Go to next number in the original array
+        LOOP NEXTNUMBER     ; Repeat this CX times (elements count)
+                            ; LOOP --> This instruction compares CX to 0 repeatedly until CX is equal to 0
+                            ; CX acts as a decrementing counter (CX--)
         
-        MOV totPrimes, DI
+        ; At the end of the program, DI contains the total of prime numbers found
+        MOV totPrimes, DI   
         
+        ; Terminate program
         MOV AH, 4Ch
-        INT 21h   
+        INT 21h     
     
 main ENDP
 END main

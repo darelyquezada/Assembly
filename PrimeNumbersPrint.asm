@@ -34,6 +34,8 @@ main PROC
         MOV AL, array[SI]   ; Store actual number on AL
         MOV BL, AL          ; BL keeps stored the number for the verification
         
+        ; -----------------------------------------------------------------------------
+        ; PRINT NUMBERS
         ; Verify if the number is above 9
         CMP BL, 9
         JA PRINTBOTH    
@@ -85,12 +87,12 @@ main PROC
             XOR AH, AH      ; Clean AH for the division (AX = BL)      
             DIV DL          ; Divide BL (AL) by DL; AL = quotient, AH = residue       
             CMP AH, 0       
-            JE NOTPRIME     ; If the residue is 0, BL is dividable by DL, then it it not a prime number 
+            JE NOTPRIME     ; If the residue is 0, BL can be divided by DL, then it is not a prime number 
             INC DL          ; Increment divisor
             CMP DL, BL      ; Continue while DL < BL
             JL PRIMELOOP    ; 
         
-        ; If the loop completes whithout finding a divisor, the number is prime
+        ; If the loop is completed without finding a divisor, the number is prime
         STOREPRIME: 
             CALL PRINTJUMP
             
@@ -101,16 +103,19 @@ main PROC
             XOR AH, AH   
             
             CALL PRINTJUMP
-                              ; 
-            MOV AL, BL  
-            MOV Primes[DI], AL 
-            INC DI
+                              
+            MOV AL, BL        ; AL = prime number
+            MOV Primes[DI], AL; Store prime number in Primes array
+            INC DI            ; Increment index for next prime number
             JMP DONECHECK
             
-        NOTPRIME: 
-            XOR AH, AH
+        NOTPRIME:  
+            ; If the number is not prime, the number isn't stored and then the next number is evaluated 
+            ; NOP           ; This instruction does nothing 
+           
             CALL PRINTJUMP
-            MOV AH, 09H    ; Print message "Not prime"
+            
+            MOV AH, 09H     ; Print message "Not prime"
             LEA DX, no
             INT 21H     
             
@@ -120,11 +125,15 @@ main PROC
             
         
         DONECHECK:
-            INC SI
-            LOOP NEXTNUMBER
+            INC SI              ; Go to next number in the original array
+            LOOP NEXTNUMBER     ; Repeat this CX times (elements count)
+                                ; LOOP --> This instruction compares CX to 0 repeatedly until CX is equal to 0
+                                ; CX acts as a decrementing counter (CX--)
             
-            MOV totPrimes, DI
+            ; At the end of the program, DI contains the total of prime numbers found
+            MOV totPrimes, DI   
             
+            ; Terminate program
             MOV AH, 4Ch
             INT 21h     
         
